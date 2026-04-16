@@ -6,7 +6,7 @@ from datetime import datetime
 
 # 【修復 503 錯誤】強制使用 REST 通道
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"], transport="rest")
-model = genai.GenerativeModel('gemini-1.5-flash-latest')
+model = genai.GenerativeModel('gemini-pro')
 
 ISSUE_TAGS = ['碳排', 'Fashion', 'Industry', '規範/法令', 'Announcement', 'E Environment', 'Climate', '碳權 / 費', '政治', 'S 社會', 'G Corporate Governance', 'CSR', 'ESG', 'Risk', 'Investment', 'Economics', 'Carbon']
 
