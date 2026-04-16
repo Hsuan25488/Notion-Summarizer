@@ -3,24 +3,27 @@ import requests
 from bs4 import BeautifulSoup
 import google.generativeai as genai
 from datetime import datetime
+import urllib3
 
-# 【破案修復】拿掉 transport="rest"，恢復預設高速連線，並使用最新 1.5-flash 模型
+# 隱藏跳過 SSL 檢查時產生的警告訊息 (讓後台保持乾淨)
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 model = genai.GenerativeModel('gemini-1.5-flash')
 
 ISSUE_TAGS = ['碳排', 'Fashion', 'Industry', '規範/法令', 'Announcement', 'E Environment', 'Climate', '碳權 / 費', '政治', 'S 社會', 'G Corporate Governance', 'CSR', 'ESG', 'Risk', 'Investment', 'Economics', 'Carbon']
 
-st.title("⚡️ Notion 文章摘要自動生成器 (最終完全體)")
+st.title("⚡️ Notion 文章摘要自動生成器 (最終無敵版)")
 url = st.text_input("請貼上文章網址：")
 
 @st.cache_data(show_spinner=False)
 def process_article(article_url):
-    # 戴上面具，突破天下雜誌防爬蟲機制
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     }
     
-    response = requests.get(article_url, headers=headers, timeout=15)
+    # 【無敵關鍵】加上 verify=False，不管網站憑證有沒有過期都強行抓取
+    response = requests.get(article_url, headers=headers, timeout=15, verify=False)
     response.encoding = 'utf-8' 
     soup = BeautifulSoup(response.text, 'html.parser')
     text_content = soup.get_text(strip=True)[:2500] 
