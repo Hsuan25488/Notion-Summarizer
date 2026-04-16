@@ -1,0 +1,66 @@
+{\rtf1\ansi\ansicpg950\cocoartf2822
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 import streamlit as st\
+import requests\
+from bs4 import BeautifulSoup\
+import google.generativeai as genai\
+from datetime import datetime\
+\
+# \uc0\u24478  Streamlit Secrets \u35712 \u21462  API Key (\u37329 \u38000 \u26371 \u34255 \u22312 \u24460 \u21488 \u65292 \u19981 \u24597 \u22806 \u27945 )\
+genai.configure(api_key=st.secrets["GEMINI_API_KEY"])\
+model = genai.GenerativeModel('gemini-1.5-flash')\
+\
+# \uc0\u20320 \u30340  Notion \u27161 \u31844 \u24235 \
+ISSUE_TAGS = ['\uc0\u30899 \u25490 ', 'Fashion', 'Industry', '\u35215 \u31684 /\u27861 \u20196 ', 'Announcement', 'E Environment', 'Climate', '\u30899 \u27402  / \u36027 ', '\u25919 \u27835 ', 'S \u31038 \u26371 ', 'G Corporate Governance', 'CSR', 'ESG', 'Risk', 'Investment', 'Economics', 'Carbon']\
+\
+st.title("Notion \uc0\u25991 \u31456 \u25688 \u35201 \u33258 \u21205 \u29983 \u25104 \u22120 ")\
+url = st.text_input("\uc0\u35531 \u36028 \u19978 \u25991 \u31456 \u32178 \u22336 \u65306 ")\
+\
+if st.button("\uc0\u38283 \u22987 \u34389 \u29702 "):\
+    if url:\
+        with st.spinner('\uc0\u27491 \u22312 \u29228 \u21462 \u25991 \u31456 \u20006 \u20132 \u30001  AI \u20998 \u26512 \u20013 ...'):\
+            try:\
+                response = requests.get(url, timeout=10)\
+                soup = BeautifulSoup(response.text, 'html.parser')\
+                text_content = soup.get_text(strip=True)[:5000]\
+                title = soup.title.string if soup.title else "\uc0\u26410 \u21629 \u21517 \u25991 \u31456 "\
+                \
+                prompt = f"""\
+                \uc0\u35531 \u38321 \u35712 \u20197 \u19979 \u25991 \u31456 \u20839 \u23481 \u65292 \u20006 \u22519 \u34892 \u65306 \
+                1. \uc0\u23531 \u20986 \u19968 \u21477 \u35441 \u30340 \u25991 \u31456 \u25688 \u35201 \u12290 \
+                2. \uc0\u24478 \u20197 \u19979 \u27161 \u31844 \u28165 \u21934 \u20013 \u36984 \u20986 \u26368 \u31526 \u21512 \u30340 \u27161 \u31844 \u65288 \u21487 \u35079 \u36984 \u65289 \u65292 \u33509 \u37117 \u19981 \u31526 \u21512 \u35531 \u24314 \u35696 \u19968 \u20491 \u26032 \u27161 \u31844 \u65306 \{ISSUE_TAGS\}\u12290 \
+                \
+                \uc0\u25991 \u31456 \u20839 \u23481 \u65306 \
+                \{text_content\}\
+                \
+                \uc0\u35531 \u22196 \u26684 \u20381 \u25818 \u20197 \u19979 \u26684 \u24335 \u36664 \u20986 \u65292 \u19981 \u35201 \u21253 \u21547 \u20854 \u20182 \u24290 \u35441 \u65306 \
+                \uc0\u27161 \u31844 \u65306 [\u22635 \u20837 \u27161 \u31844 ]\
+                \uc0\u25688 \u35201 \u65306 [\u22635 \u20837 \u19968 \u21477 \u35441 \u25688 \u35201 ]\
+                """\
+                \
+                ai_response = model.generate_content(prompt).text\
+                \
+                lines = ai_response.strip().split('\\n')\
+                issues = lines[0].replace('\uc0\u27161 \u31844 \u65306 ', '').strip()\
+                keywords = lines[1].replace('\uc0\u25688 \u35201 \u65306 ', '').strip()\
+                \
+                current_time = datetime.now().strftime("%Y-%m-%d")\
+                \
+                markdown_table = f"""\
+| State | Issue | Keywords | Title | Link what | Last edited time | Files & media | Created time |\
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |\
+| Writing | \{issues\} | \{keywords\} | \{title\} |  | \{current_time\} | \{url\} | \{current_time\} |\
+                """\
+                \
+                st.success("\uc0\u34389 \u29702 \u23436 \u25104 \u65281 \u35531 \u35079 \u35069 \u19979 \u26041 \u34920 \u26684 \u65306 ")\
+                st.code(markdown_table, language="markdown")\
+                \
+            except Exception as e:\
+                st.error(f"\uc0\u34389 \u29702 \u22833 \u25943 \u65292 \u21487 \u33021 \u26159 \u32178 \u31449 \u38459 \u25803 \u29228 \u34802 \u12290 \u37679 \u35492 \u35338 \u24687 \u65306 \{e\}")\
+    else:\
+        st.warning("\uc0\u35531 \u20808 \u36664 \u20837 \u32178 \u22336 \u65281 ")}
