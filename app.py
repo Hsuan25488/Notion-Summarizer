@@ -4,18 +4,18 @@ from bs4 import BeautifulSoup
 import google.generativeai as genai
 from datetime import datetime
 
-# 【修復 503 錯誤】強制使用 REST 通道
-genai.configure(api_key=st.secrets["GEMINI_API_KEY"], transport="rest")
-model = genai.GenerativeModel('gemini-pro')
+# 【破案修復】拿掉 transport="rest"，恢復預設高速連線，並使用最新 1.5-flash 模型
+genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+model = genai.GenerativeModel('gemini-1.5-flash')
 
 ISSUE_TAGS = ['碳排', 'Fashion', 'Industry', '規範/法令', 'Announcement', 'E Environment', 'Climate', '碳權 / 費', '政治', 'S 社會', 'G Corporate Governance', 'CSR', 'ESG', 'Risk', 'Investment', 'Economics', 'Carbon']
 
-st.title("⚡️ Notion 摘要生成器 ")
+st.title("⚡️ Notion 文章摘要自動生成器 (最終完全體)")
 url = st.text_input("請貼上文章網址：")
 
 @st.cache_data(show_spinner=False)
 def process_article(article_url):
-    # 偽裝成 Chrome 瀏覽器，突破網站防爬蟲機制
+    # 戴上面具，突破天下雜誌防爬蟲機制
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     }
