@@ -9,7 +9,7 @@ model = genai.GenerativeModel('gemini-1.5-flash')
 
 ISSUE_TAGS = ['碳排', 'Fashion', 'Industry', '規範/法令', 'Announcement', 'E Environment', 'Climate', '碳權 / 費', '政治', 'S 社會', 'G Corporate Governance', 'CSR', 'ESG', 'Risk', 'Investment', 'Economics', 'Carbon']
 
-st.title("⚡️ Notion 文章摘要自動生成器 (加速版)")
+st.title("⚡️ Notion 摘要生成器+ ")
 url = st.text_input("請貼上文章網址：")
 
 # 這裡加入了「快取」黑科技，只要網址一樣，就不會重新跑爬蟲和 AI
